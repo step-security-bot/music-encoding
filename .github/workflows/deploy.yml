@@ -35,6 +35,9 @@ env:
   TARGET_DIR: '' # will be set dynamically in steps below
 
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build and deploy Schema and Guidelines
@@ -43,6 +46,11 @@ jobs:
       contents: write
 
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@63c24ba6bd7ba022e95695ff85de572c04a18142 # v2.7.0
+        with:
+          egress-policy: audit
+
       - name: Echo properties
         run: |
           echo "github.repository: ${{ github.repository }}"
@@ -56,7 +64,7 @@ jobs:
 
       ### BUIDLING THE SCHEMA AND THE GUIDELINES ###
       - name: Checkout main repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           # Whether to checkout submodules: `true` to checkout submodules or `recursive` to
           # recursively checkout submodules.
@@ -72,13 +80,13 @@ jobs:
 
       ### UPLOADING THE ARTIFACTS ###
       - name: Upload PDF
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: pdf
           path: ${{ github.workspace }}/dist/guidelines/pdf/MEI_Guidelines_*.pdf
 
       - name: Upload Prince XML log
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4.3.3
         with:
           name: prince_log
           path: ${{ github.workspace }}/build/prince.log
@@ -112,7 +120,7 @@ jobs:
       ### PUBLISHING THE SCHEMA ###
       - name: Checkout SCHEMA_REPO into SCHEMA_DIR
         if: github.repository_owner == env.REPO_OWNER && env.IS_DEV_OR_TAG == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           # repository to check out
           repository: ${{ env.SCHEMA_REPO }}
@@ -176,7 +184,7 @@ jobs:
       ### PUBLISHING THE GUIDELINES ###
       - name: Checkout GUIDELINES_REPO into GUIDELINES_DIR
         if: github.repository_owner == env.REPO_OWNER && env.IS_DEV_OR_TAG == 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@0ad4b8fadaa221de15dcec353f45205ec38ea70b # v4.1.4
         with:
           # repository to check out
           repository: ${{ env.GUIDELINES_REPO }}
